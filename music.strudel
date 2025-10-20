@@ -1,0 +1,44 @@
+setcps(0.5)
+
+// Define chord progression
+let chords = chord("<Cm9 Gm9 Fm9 Gm9>/4").dict('ireal')
+
+stack(
+  // KICK DRUM
+  s("bd").struct("<x [x [~ x]] [x ~] [x x]>").gain(1.2).bank('RolandTR909'),
+  
+  // SNARE/CLAP
+  s("~ [sd, clap]").gain(0.9).bank('RolandTR909').room(0.3),
+  
+  // HI-HATS
+  n("[0 <1 2>]*<4!3 8>").s("hh")
+    .bank('RolandTR808').gain("<0.4 0.5 0.6 0.5>"),
+  
+  // OPEN HAT accents
+  s("oh").struct("<0 0 x 0>/4").bank('RolandTR808').gain(0.6),
+  
+  // BASS LINE (sidechain style)
+  note("<c2 g1 f2 g1>/2")
+    .s("sawtooth").lpf(400).lpq(5).gain(0.8).segment(8).clip(perlin.range(0.3, 0.8)),
+  
+  // CHORDS/PAD
+  chords.voicing()
+    .s("sawtooth").lpf(sine.range(400, 1200).slow(8)).lpq(3).room(0.6).gain(0.35)
+    .delay(0.2),
+  
+  // LEAD MELODY
+  note("<e4 g4 c5 d5 c5 g4>*2")
+    .s("sawtooth").lpf(perlin.range(800, 2000)).lpq(2).delay(0.3).room(0.4).gain(0.5)
+    .mask("<0 1 1 1>/8").sometimes(fast(2)),
+  
+  // ARPEGGIO
+  chords.n("[0 2 4 7]*2")
+  .anchor("C5").voicing().s("square").lpf(1500).gain(0.4).delay(0.15)
+  .mask("<1 1 0 1>/4"),
+  
+  // PERCUSSION FILLS
+  s("cp*<2 4>")
+  .bank('RolandTR808').gain(0.5).pan(sine.slow(4)).mask("<0 0 0 1>/8").rarely(fast(2))
+)
+.room(0.2)
+.delay(0.1)
